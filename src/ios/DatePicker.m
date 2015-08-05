@@ -67,9 +67,6 @@
     height= self.webView.superview.frame.size.height;
   }
 
-  NSLog(@"%.2f", width);
-  NSLog(@"%.2f", height);
-
   self.datePickerContainer.frame = CGRectMake(0, 0, width, height);
   
   [self.webView.superview addSubview: self.datePickerContainer];
@@ -167,33 +164,53 @@
 
 - (UIPopoverController *)createPopover:(NSMutableDictionary *)options {
   
-  CGFloat pickerViewWidth = 320.0f;
-  CGFloat pickerViewHeight = 216.0f;
-  UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, pickerViewWidth, pickerViewHeight)];
+    float leftOffsetDatePicker;
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"7"] == NSOrderedDescending)
+    {
+        leftOffsetDatePicker = 0; //iOS7 or later
+    }
+    else
+    {
+        leftOffsetDatePicker = -10; //earlier than iOS7
+    }
+    
+    CGFloat pickerViewWidth = 320.0f;
+    CGFloat pickerViewHeight = 216.0f;
+    UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(leftOffsetDatePicker, 0.0f, pickerViewWidth, pickerViewHeight)];
   
-  CGRect frame = CGRectMake(0, 0, 0, 0);
-  // in iOS8, UIDatePicker couldn't be shared in multi UIViews, it will cause crash. so   create new UIDatePicker instance every time
-  if (! self.datePicker || [[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0){
-      self.datePicker = [self createDatePicker:options frame:frame];
-      [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
-  }
-  [self updateDatePicker:options];
-  [datePickerView addSubview:self.datePicker];
+    CGRect frame = CGRectMake(0, 0, 0, 0);
+    // in iOS8, UIDatePicker couldn't be shared in multi UIViews, it will cause crash. so   create new UIDatePicker instance every time
+    if (! self.datePicker || [[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0){
+        self.datePicker = [self createDatePicker:options frame:frame];
+        [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:  UIControlEventValueChanged];
+    }
+    [self updateDatePicker:options];
+    [datePickerView addSubview:self.datePicker];
+    
+    CGFloat x = [[options objectForKey:@"x"] intValue];
+    CGFloat y = [[options objectForKey:@"y"] intValue];
+    CGRect rect;
+    UIPopoverArrowDirection arrowDirection = 0;
+    if (x != 0) {
+        rect = CGRectMake(x, y, 1, 1);
+        arrowDirection = [[options objectForKey:@"popoverArrowDirection"] intValue];
+    } else {
+        CGRect screenRect = [[UIScreen mainScreen] bounds];
+        CGFloat viewWidth = screenRect.size.width;
+        CGFloat viewHeight = screenRect.size.height;
+        rect = CGRectMake(viewWidth/2, viewHeight/2, 1, 1);
+    }
+
+    UIViewController *datePickerViewController = [[UIViewController alloc]init];
+    datePickerViewController.view = datePickerView;
   
-  UIViewController *datePickerViewController = [[UIViewController alloc]init];
-  datePickerViewController.view = datePickerView;
+    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:datePickerViewController];
+    popover.delegate = self;
+    
+    [popover setPopoverContentSize:CGSizeMake(pickerViewWidth, pickerViewHeight) animated:NO];
   
-  UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:datePickerViewController];
-  popover.delegate = self;
-  [popover setPopoverContentSize:CGSizeMake(pickerViewWidth, pickerViewHeight) animated:NO];
-  
-  CGFloat x = [[options objectForKey:@"x"] intValue];
-  CGFloat y = [[options objectForKey:@"y"] intValue];
-  UIPopoverArrowDirection arrowDirection = [[options objectForKey:@"popoverArrowDirection"] intValue];
-  
-  CGRect anchor = CGRectMake(x, y, 1, 1);
-  [popover presentPopoverFromRect:anchor inView:self.webView.superview  permittedArrowDirections:arrowDirection animated:YES];
-  
+    [popover presentPopoverFromRect:rect inView:self.webView.superview permittedArrowDirections:0 animated:YES];
+    
   return popover;
 }
 
