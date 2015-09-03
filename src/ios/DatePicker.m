@@ -255,7 +255,7 @@
   if(maxDateString && maxDateString.length > 0){
     self.datePicker.maximumDate = [formatter dateFromString:maxDateString];
   }
-  
+
   self.datePicker.date = [formatter dateFromString:dateString];
   
   if ([mode isEqualToString:@"date"]) {
