@@ -233,7 +233,6 @@
   NSInteger minuteInterval = [minuteIntervalString integerValue];
   NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:[options objectForKey:@"locale"]];
 
-  
   if (allowOldDates) {
     self.datePicker.minimumDate = nil;
   }
@@ -241,7 +240,7 @@
     self.datePicker.minimumDate = [NSDate date];
   }
   
-  if(minDateString && minDateString.length > 0){
+  if(![minDateString isEqual: [NSNull null]] && minDateString.length > 0){
     self.datePicker.minimumDate = [formatter dateFromString:minDateString];
   }
   
@@ -252,7 +251,7 @@
     self.datePicker.maximumDate = [NSDate date];
   }
   
-  if(maxDateString && maxDateString.length > 0){
+  if(![maxDateString isEqual: [NSNull null]] && maxDateString.length > 0){
     self.datePicker.maximumDate = [formatter dateFromString:maxDateString];
   }
 
