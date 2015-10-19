@@ -16,11 +16,7 @@ function DatePicker() {
 DatePicker.prototype.show = function(options, cb, errCb) {
 
 	if (options.date) {
-		options.date = (options.date.getMonth() + 1) + "/" +
-					   (options.date.getDate()) + "/" +
-					   (options.date.getFullYear()) + "/" +
-					   (options.date.getHours()) + "/" +
-					   (options.date.getMinutes());
+		options.date = options.date.getTime();
 	}
 
 	var defaults = {
@@ -45,8 +41,7 @@ DatePicker.prototype.show = function(options, cb, errCb) {
 
 	var callback = function(message) {
 		if(message != 'error'){
-			var timestamp = Date.parse(message);
-			if(isNaN(timestamp) == false) {
+		    if (isNaN(message) == false) {
 				cb(new Date(message));
 			}
 	        else {
