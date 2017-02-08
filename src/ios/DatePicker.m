@@ -36,11 +36,11 @@
 
 - (void)show:(CDVInvokedUrlCommand*)command {
   NSMutableDictionary *options = [command argumentAtIndex:0];
-  if (isIPhone) {
+  //if (isIPhone) {
     [self showForPhone: options];
-  } else {
-    [self showForPad: options];
-  }
+  //} else {
+ //   [self showForPad: options];
+ // }
 }
 
 - (BOOL)showForPhone:(NSMutableDictionary *)options {
@@ -59,6 +59,8 @@
   CGFloat width;
   CGFloat height;
   
+  [self.datePickerContainer removeFromSuperview];
+  
   if(UIInterfaceOrientationIsLandscape(deviceOrientation)){
     width = self.webView.superview.frame.size.width;
     height= self.webView.superview.frame.size.height;
@@ -66,6 +68,9 @@
     width = self.webView.superview.frame.size.width;
     height= self.webView.superview.frame.size.height;
   }
+
+  NSLog(@"%.2f", width);
+  NSLog(@"%.2f", height);
 
   self.datePickerContainer.frame = CGRectMake(0, 0, width, height);
   
@@ -100,7 +105,7 @@
 }
 
 - (void)hide {
-  if (isIPhone) {
+  //if (isIPhone) {
     CGRect frame = CGRectOffset(self.datePickerComponentsContainer.frame,
                                 0,
                                 self.datePickerComponentsContainer.frame.size.height);
@@ -116,9 +121,9 @@
                        [self.datePickerContainer removeFromSuperview];
                      }];
 
-  } else {
-    [self.datePickerPopover dismissPopoverAnimated:YES];
-  }
+ // } else {
+ //   [self.datePickerPopover dismissPopoverAnimated:YES];
+ // }
 }
 
 #pragma mark - Actions
@@ -164,53 +169,33 @@
 
 - (UIPopoverController *)createPopover:(NSMutableDictionary *)options {
   
-    float leftOffsetDatePicker;
-    if ([[[UIDevice currentDevice] systemVersion] compare:@"7"] == NSOrderedDescending)
-    {
-        leftOffsetDatePicker = 0; //iOS7 or later
-    }
-    else
-    {
-        leftOffsetDatePicker = -10; //earlier than iOS7
-    }
-    
-    CGFloat pickerViewWidth = 320.0f;
-    CGFloat pickerViewHeight = 216.0f;
-    UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(leftOffsetDatePicker, 0.0f, pickerViewWidth, pickerViewHeight)];
+  CGFloat pickerViewWidth = 320.0f;
+  CGFloat pickerViewHeight = 216.0f;
+  UIView *datePickerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, pickerViewWidth, pickerViewHeight)];
   
-    CGRect frame = CGRectMake(0, 0, 0, 0);
-    // in iOS8, UIDatePicker couldn't be shared in multi UIViews, it will cause crash. so   create new UIDatePicker instance every time
-    if (! self.datePicker || [[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0){
-        self.datePicker = [self createDatePicker:options frame:frame];
-        [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:  UIControlEventValueChanged];
-    }
-    [self updateDatePicker:options];
-    [datePickerView addSubview:self.datePicker];
-    
-    CGFloat x = [[options objectForKey:@"x"] intValue];
-    CGFloat y = [[options objectForKey:@"y"] intValue];
-    CGRect rect;
-    UIPopoverArrowDirection arrowDirection = 0;
-    if (x != 0) {
-        rect = CGRectMake(x, y, 1, 1);
-        arrowDirection = [[options objectForKey:@"popoverArrowDirection"] intValue];
-    } else {
-        CGRect screenRect = [[UIScreen mainScreen] bounds];
-        CGFloat viewWidth = screenRect.size.width;
-        CGFloat viewHeight = screenRect.size.height;
-        rect = CGRectMake(viewWidth/2, viewHeight/2, 1, 1);
-    }
-
-    UIViewController *datePickerViewController = [[UIViewController alloc]init];
-    datePickerViewController.view = datePickerView;
+  CGRect frame = CGRectMake(0, 0, 0, 0);
+  // in iOS8, UIDatePicker couldn't be shared in multi UIViews, it will cause crash. so   create new UIDatePicker instance every time
+  if (! self.datePicker || [[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0){
+      self.datePicker = [self createDatePicker:options frame:frame];
+      [self.datePicker addTarget:self action:@selector(dateChangedAction:) forControlEvents:UIControlEventValueChanged];
+  }
+  [self updateDatePicker:options];
+  [datePickerView addSubview:self.datePicker];
   
-    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:datePickerViewController];
-    popover.delegate = self;
-    
-    [popover setPopoverContentSize:CGSizeMake(pickerViewWidth, pickerViewHeight) animated:NO];
+  UIViewController *datePickerViewController = [[UIViewController alloc]init];
+  datePickerViewController.view = datePickerView;
   
-    [popover presentPopoverFromRect:rect inView:self.webView.superview permittedArrowDirections:0 animated:YES];
-    
+  UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:datePickerViewController];
+  popover.delegate = self;
+  [popover setPopoverContentSize:CGSizeMake(pickerViewWidth, pickerViewHeight) animated:NO];
+  
+  CGFloat x = [[options objectForKey:@"x"] intValue];
+  CGFloat y = [[options objectForKey:@"y"] intValue];
+  UIPopoverArrowDirection arrowDirection = [[options objectForKey:@"popoverArrowDirection"] intValue];
+  
+  CGRect anchor = CGRectMake(x, y, 1, 1);
+  [popover presentPopoverFromRect:anchor inView:self.webView.superview  permittedArrowDirections:arrowDirection animated:YES];
+  
   return popover;
 }
 
@@ -233,6 +218,7 @@
   NSInteger minuteInterval = [minuteIntervalString integerValue];
   NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:[options objectForKey:@"locale"]];
 
+  
   if (allowOldDates) {
     self.datePicker.minimumDate = nil;
   }
@@ -240,7 +226,7 @@
     self.datePicker.minimumDate = [NSDate date];
   }
   
-  if(![minDateString isEqual: [NSNull null]] && minDateString.length > 0){
+  if(minDateString && minDateString.length > 0){
     self.datePicker.minimumDate = [formatter dateFromString:minDateString];
   }
   
@@ -251,10 +237,10 @@
     self.datePicker.maximumDate = [NSDate date];
   }
   
-  if(![maxDateString isEqual: [NSNull null]] && maxDateString.length > 0){
+  if(maxDateString && maxDateString.length > 0){
     self.datePicker.maximumDate = [formatter dateFromString:maxDateString];
   }
-
+  
   self.datePicker.date = [formatter dateFromString:dateString];
   
   if ([mode isEqualToString:@"date"]) {

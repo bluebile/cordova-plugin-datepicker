@@ -84,42 +84,49 @@ Type: Date | empty String
 
 Default: `(empty String)`
 
-minDate is a Date object for iOS and an integer for Android, so you need to account for that when using the plugin.
+minDate is a Date object for iOS and a millisecond precision unix timestamp for Android, so you need to account for that when using the plugin. Also, on Android, only the date is enforced (time is not).
 
 ### maxDate - iOS, Android, Windows
 Maximum date.
 
 Type: Date | empty String
 
-Default: `(empty String)` 
+Default: `(empty String)`
+
+### titleText - Android
+Label for the dialog title. If empty, uses android default (Set date/Set time).
+
+Type: String | empty String
+
+Default: `(empty String)`
 
 ### okText - Android
 Label of BUTTON_POSITIVE (done button). If empty, uses android.R.string.ok.
 
 Type: String | empty String
 
-Default: `(empty String)` 
+Default: `(empty String)`
 
 ### cancelText - Android
 Label of BUTTON_NEGATIVE (cancel button). If empty, uses android.R.string.cancel.
 
 Type: String | empty String
 
-Default: `(empty String)` 
+Default: `(empty String)`
 
 ### todayText - Android
 Label of today button. If empty, doesn't show the option to select current date.
 
 Type: String | empty String
 
-Default: `(empty String)` 
+Default: `(empty String)`
 
 ### nowText - Android
 Label of now button. If empty, doesn't show the option to select current time.
 
 Type: String | empty String
 
-Default: `(empty String)` 
+Default: `(empty String)`
 
 ### is24Hour - Android
 Shows time dialog in 24 hours format.
