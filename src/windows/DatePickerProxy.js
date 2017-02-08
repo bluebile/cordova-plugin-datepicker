@@ -1,4 +1,4 @@
-﻿cordova.define("com.plugin.datepicker.DatePickerProxy", function(require, exports, module) { /*
+/*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -63,7 +63,7 @@ module.exports = {
                     hours = dateParts[3] <= 9 ? '0' + dateParts[3] : dateParts[3],
                     minutes = dateParts[4] <= 9 ? '0' + dateParts[4] : dateParts[4];
 
-                var dateTimeString = "" + dateParts[2] + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":00";
+                var dateTimeString = "" + dateParts[2] + "-" + month + "-" + day + " " + hours + ":" + minutes + ":00";
 
                 options.date = new Date(dateTimeString);
 
@@ -73,11 +73,11 @@ module.exports = {
             }
 
             if (!options.minDate) {
-                options.minDate = new Date ("1970-01-01T00:00:00")
+                options.minDate = new Date ("1970-01-01 00:00:00")
             }
 
             if (!options.maxDate) {
-                options.maxDate = new Date("2050-01-01T00:00:00");
+                options.maxDate = new Date("2050-01-01 00:00:00");
             }
             
             var buttonCSSText = "border: 3px solid white; background:#000; color:#FFF; border-radius:0; width: 90%; height: 90%; font-size: 2em;"
@@ -118,6 +118,7 @@ module.exports = {
 
                     var timePickerSelect = document.createElement("select");
                     timePickerSelect.style.cssText = buttonCSSText;
+                    timePickerSelect.setAttribute("data-tap-disabled","true");
 
                     cell.appendChild(timePickerSelect);
 
@@ -184,7 +185,7 @@ module.exports = {
 
                     var datePickerSelect = document.createElement("select");
                     datePickerSelect.style.cssText = buttonCSSText;
-
+                    datePickerSelect.setAttribute("data-tap-disabled","true");
                     if (i == 0) {
                         datePickerSelect.id = "winjsdatepickerYear";
                         descriptionElement.textContent = "year";
@@ -343,7 +344,7 @@ module.exports = {
                 }
 
                 if (pickertype.indexOf("time") >= 0) {
-                    dateTimeStr = dateTimeStr + "T" + (hours.value <= 9 ? "0" + hours.value : hours.value) + ":" + (minutes.value <= 9 ? "0" + minutes.value : minutes.value) + ":00";
+                    dateTimeStr = dateTimeStr + " " + (hours.value <= 9 ? "0" + hours.value : hours.value) + ":" + (minutes.value <= 9 ? "0" + minutes.value : minutes.value) + ":00";
                 }
                 
                 overlay.parentElement.removeChild(overlay);
@@ -361,5 +362,3 @@ module.exports = {
 };
 
 require("cordova/exec/proxy").add("DatePickerPlugin",module.exports);
-
-});
